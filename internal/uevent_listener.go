@@ -70,7 +70,7 @@ func ListenUEvents() (map[string]string, error) {
 		}
 
 		if eventMap["ACTION"] == "add" && eventMap["SUBSYSTEM"] == "usb" && eventMap["DEVTYPE"] == "usb_device" {
-			log.Println("\n--- Yeni USB Sinyali Yakalandı ---")
+			log.Println("\n--- catch new usb signal---")
 			log.Printf("Action:    %s\n", eventMap["ACTION"])
 			log.Printf("Sysfs Path: %s\n", eventMap["DEVPATH"])
 			log.Printf("ProductID   : %s\n", eventMap["PRODUCT"])
