@@ -1,11 +1,11 @@
-package internal
+package listener
 
 import (
 	"bytes"
 	"fmt"
+	"github/usb-guard-go/internal/guard"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"syscall"
 )
@@ -69,17 +69,22 @@ func ListenUEvents() (map[string]string, error) {
 			}
 		}
 
-		if eventMap["ACTION"] == "add" && eventMap["SUBSYSTEM"] == "usb" && eventMap["DEVTYPE"] == "usb_device" {
-			log.Println("\n--- catch new usb signal---")
-			log.Printf("Action:    %s\n", eventMap["ACTION"])
-			log.Printf("Sysfs Path: %s\n", eventMap["DEVPATH"])
-			log.Printf("ProductID   : %s\n", eventMap["PRODUCT"])
-
-			log.Println("catch usb file")
-			err := os.WriteFile(filepath.Join("/sys", eventMap["DEVPATH"], "authorized"), []byte("0"), 0600) // 0644?
-			if err != nil {
-				return nil, err
-			}
+		err = guard.HandleDeviceEvent(eventMap)
+		if err != nil {
+			log.Printf("Guard error: %v", err)
+			continue
 		}
+		//if eventMap["ACTION"] == "add" && eventMap["SUBSYSTEM"] == "usb" && eventMap["DEVTYPE"] == "usb_device" {
+		//	log.Println("\n--- catch new usb signal---")
+		//	log.Printf("Action:    %s\n", eventMap["ACTION"])
+		//	log.Printf("Sysfs Path: %s\n", eventMap["DEVPATH"])
+		//	log.Printf("ProductID   : %s\n", eventMap["PRODUCT"])
+		//
+		//	log.Println("catch usb file")
+		//	err := os.WriteFile(filepath.Join("/sys", eventMap["DEVPATH"], "authorized"), []byte("0"), 0600) // 0644?
+		//	if err != nil {
+		//		return nil, err
+		//	}
+		//}
 	}
 }
