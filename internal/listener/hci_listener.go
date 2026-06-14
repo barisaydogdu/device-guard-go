@@ -1,13 +1,14 @@
 package listener
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"golang.org/x/sys/unix"
 )
 
-func HCIListener() (string, error) {
+func HCIListener(ctx context.Context) (string, error) {
 	log.Println("Starting HCI Listener")
 	fd, err := unix.Socket(unix.AF_BLUETOOTH, unix.SOCK_RAW, unix.BTPROTO_HCI)
 	if err != nil {
@@ -15,6 +16,12 @@ func HCIListener() (string, error) {
 	}
 
 	defer unix.Close(fd)
+
+	go func() {
+		<-ctx.Done()
+		log.Printf("Shutting down HCI Listener")
+		unix.Close(fd)
+	}()
 
 	//filter struct in kernel
 	//struct hci_filter {

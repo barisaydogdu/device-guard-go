@@ -2,6 +2,7 @@ package listener
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github/usb-guard-go/internal/guard"
 	"log"
@@ -37,7 +38,7 @@ func openUEventSocket() (int, error) {
 	return fd, nil
 }
 
-func ListenUEvents() (map[string]string, error) {
+func ListenUEvents(ctx context.Context) (map[string]string, error) {
 	fd, err := openUEventSocket()
 	if err != nil {
 		return nil, err
@@ -46,6 +47,12 @@ func ListenUEvents() (map[string]string, error) {
 	defer syscall.Close(fd)
 
 	buffer := make([]byte, 4096)
+
+	go func() {
+		<-ctx.Done()
+		log.Println("Closing UEventSocket")
+		syscall.Close(fd)
+	}()
 
 	for {
 		read, err := syscall.Read(fd, buffer)
