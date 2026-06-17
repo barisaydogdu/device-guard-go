@@ -28,10 +28,12 @@ func HandleDeviceEvent(eventMap map[string]string) error {
 		return nil
 	}
 
+	fmt.Printf("Subsystem: %s\n", subSystem)
+
 	guard, exist := guardRegistry[subSystem]
 
 	if !exist {
-		log.Println("No guard found")
+		log.Println("No guard found1")
 		return nil
 	}
 
@@ -47,7 +49,7 @@ func HandleMacEvent(macAddress string) error {
 
 	guard, exist := guardRegistry["bluetooth"]
 	if !exist {
-		return fmt.Errorf("no guard found")
+		return fmt.Errorf("no guard found2")
 	}
 
 	bg, ok := guard.(*BluetoothGuard)

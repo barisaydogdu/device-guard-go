@@ -13,6 +13,7 @@ import (
 func main() {
 	guard.RegisterGuard("usb", &guard.USBGuard{})
 	guard.RegisterGuard("bluetooth", &guard.BluetoothGuard{})
+	guard.RegisterGuard("net", &guard.NetGuard{})
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
