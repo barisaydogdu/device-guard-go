@@ -3,6 +3,7 @@ package listener
 import (
 	"context"
 	"fmt"
+	"github/usb-guard-go/internal/guard"
 	"log"
 
 	"golang.org/x/sys/unix"
@@ -72,7 +73,11 @@ func HCIListener(ctx context.Context) (string, error) {
 				mac := fmt.Sprintf("%02X:%02X:%02X:%02X:%02X:%02X",
 					packet[11], packet[10], packet[9], packet[8], packet[7], packet[6])
 				log.Println("target mac address", mac)
-				return mac, nil
+
+				err := guard.HandleMacEvent(mac)
+				if err != nil {
+					log.Println("failed to handle mac:", err)
+				}
 			}
 		}
 	}
