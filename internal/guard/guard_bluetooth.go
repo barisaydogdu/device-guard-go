@@ -9,14 +9,14 @@ import (
 	"strings"
 )
 
-type BluetoothGuard struct{}
+type BluetoothGuard struct {
+	Config *AppConfig
+}
 
 func (b *BluetoothGuard) Block(eventMap map[string]string) error {
 	if eventMap["DEVTYPE"] == "host" {
 		return nil
 	}
-
-	log.Println("blocking blueetooth")
 
 	for key, value := range eventMap {
 		log.Printf("%s = %s\n", key, value)

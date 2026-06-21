@@ -6,10 +6,14 @@ import (
 	"path/filepath"
 )
 
-type NetGuard struct{}
+type NetGuard struct {
+	Config *AppConfig
+}
 
 func (b *NetGuard) Block(eventMap map[string]string) error {
 	iFace := eventMap["INTERFACE"]
+
+	log.Println("allowed net interface:", b.Config.AllowedNetInterfaces)
 
 	if iFace != "" {
 		err := exec.Command("ip", "link", "set", "dev", iFace, "down").Run()

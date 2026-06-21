@@ -11,14 +11,21 @@ import (
 )
 
 func main() {
-	guard.RegisterGuard("usb", &guard.USBGuard{})
-	guard.RegisterGuard("bluetooth", &guard.BluetoothGuard{})
-	guard.RegisterGuard("net", &guard.NetGuard{})
+	var err error
+
+	config, err := guard.LoadAppConfig()
+	if err != nil {
+		log.Println("config bulunamadi", err)
+		return
+	}
+
+	guard.RegisterGuard("usb", &guard.USBGuard{Config: config})
+	guard.RegisterGuard("bluetooth", &guard.BluetoothGuard{Config: config})
+	guard.RegisterGuard("net", &guard.NetGuard{Config: config})
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	var err error
 	log.Println("Starting HCI Listener")
 
 	go func() {
