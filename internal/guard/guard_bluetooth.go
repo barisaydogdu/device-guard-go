@@ -30,7 +30,12 @@ func (b *BluetoothGuard) Block(eventMap map[string]string) error {
 
 	macAddress := strings.TrimSpace(string(address))
 
-	log.Println("mac address:", macAddress)
+	for i := 0; i < len(b.Config.AllowedBluetoothMACs); i++ {
+		if b.Config.AllowedBluetoothMACs[i] == macAddress {
+			log.Printf("[Blueetooth] mac address is whitelisted. Allowing connection.\n")
+			return nil
+		}
+	}
 
 	cmd := exec.Command("rfkill", "block", "bluetooth")
 	err = cmd.Run()
