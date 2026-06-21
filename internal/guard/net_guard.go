@@ -15,6 +15,12 @@ func (b *NetGuard) Block(eventMap map[string]string) error {
 
 	log.Println("allowed net interface:", b.Config.AllowedNetInterfaces)
 
+	for i := 0; i < len(b.Config.AllowedNetInterfaces); i++ {
+		if b.Config.AllowedNetInterfaces[i] == iFace {
+			log.Printf("[Net] iFace is whitelisted. Allowing connection.\n")
+			return nil
+		}
+	}
 	if iFace != "" {
 		err := exec.Command("ip", "link", "set", "dev", iFace, "down").Run()
 		if err != nil {
