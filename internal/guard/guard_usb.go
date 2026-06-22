@@ -1,6 +1,7 @@
 package guard
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -22,6 +23,7 @@ func (u *USBGuard) Block(eventMap map[string]string) error {
 		log.Println("serial number not found suspicious device")
 	}
 
+	fmt.Print(string(file))
 	for i := 0; i < len(u.Config.AllowedUSBSerials); i++ {
 		if u.Config.AllowedUSBSerials[i] == strings.TrimSpace(string(file)) {
 			log.Printf("[USB] serial Number is whitelisted. Allowing connection.\n")

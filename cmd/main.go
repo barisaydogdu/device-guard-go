@@ -13,7 +13,7 @@ import (
 func main() {
 	var err error
 
-	config, err := guard.LoadAppConfig()
+	config, err := guard.LoadAppConfigTxt()
 	if err != nil {
 		log.Println("config bulunamadi", err)
 		return

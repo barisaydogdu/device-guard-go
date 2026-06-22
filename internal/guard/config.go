@@ -1,8 +1,11 @@
 package guard
 
 import (
+	"bufio"
 	"encoding/json"
+	"log"
 	"os"
+	"strings"
 )
 
 type AppConfig struct {
@@ -24,4 +27,43 @@ func LoadAppConfig() (*AppConfig, error) {
 	}
 
 	return &config, nil
+}
+
+func LoadAppConfigTxt() (*AppConfig, error) {
+	config := &AppConfig{}
+
+	file, err := os.Open("../guard.conf")
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		trimmedLine := strings.TrimSpace(line)
+		if trimmedLine == "" || strings.HasPrefix(trimmedLine, "#") {
+			continue
+		}
+
+		values := strings.Split(line, "=")
+
+		if len(values) != 2 {
+			log.Println("values different 2")
+			continue
+		}
+
+		switch values[0] {
+		case "net":
+			config.AllowedNetInterfaces = append(config.AllowedNetInterfaces, values[1])
+		case "bt":
+			config.AllowedBluetoothMACs = append(config.AllowedBluetoothMACs, values[1])
+		case "usb":
+			config.AllowedUSBSerials = append(config.AllowedUSBSerials, values[1])
+		}
+	}
+	return config, scanner.Err()
 }
