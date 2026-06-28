@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"github/usb-guard-go/internal/guard"
-	kk "github/usb-guard-go/internal/listener"
+	listener "github/usb-guard-go/internal/listener"
+	"github/usb-guard-go/internal/util"
 	"log"
 	"os"
 	"os/signal"
@@ -13,7 +14,9 @@ import (
 func main() {
 	var err error
 
-	config, err := guard.LoadAppConfigTxt()
+	configPath := util.ResolveConfigPath()
+
+	config, err := guard.LoadAppConfigTxt(configPath)
 	if err != nil {
 		log.Println("config bulunamadi", err)
 		return
@@ -29,7 +32,7 @@ func main() {
 	log.Println("Starting HCI Listener")
 
 	go func() {
-		_, err = kk.HCIListener(ctx)
+		_, err = listener.HCIListener(ctx)
 		if err != nil {
 			log.Println(err)
 			return
@@ -38,7 +41,7 @@ func main() {
 	}()
 
 	go func() {
-		_, err = kk.ListenUEvents(ctx)
+		_, err = listener.ListenUEvents(ctx)
 		if err != nil {
 			log.Println(err)
 			return
