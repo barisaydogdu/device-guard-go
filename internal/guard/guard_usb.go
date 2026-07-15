@@ -2,6 +2,7 @@ package guard
 
 import (
 	"fmt"
+	"github/usb-guard-go/internal/util"
 	"log"
 	"os"
 	"path/filepath"
@@ -18,14 +19,13 @@ func (u *USBGuard) Block(eventMap map[string]string) error {
 	}
 
 	serialNumberPath := filepath.Join("/sys"+eventMap["DEVPATH"], "/serial")
-	file, err := os.ReadFile(serialNumberPath)
+	serial, err := os.ReadFile(serialNumberPath)
 	if err != nil {
 		log.Println("serial number not found suspicious device")
 	}
 
-	fmt.Print(string(file))
 	for i := 0; i < len(u.Config.AllowedUSBSerials); i++ {
-		if u.Config.AllowedUSBSerials[i] == strings.TrimSpace(string(file)) {
+		if u.Config.AllowedUSBSerials[i] == strings.TrimSpace(string(serial)) {
 			log.Printf("[USB] serial Number is whitelisted. Allowing connection.\n")
 			return nil
 		}
@@ -39,6 +39,9 @@ func (u *USBGuard) Block(eventMap map[string]string) error {
 	}
 
 	log.Println("Device blocked successfully")
+
+	util.SendNotification("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", serial))
+
 	return nil
 }
 

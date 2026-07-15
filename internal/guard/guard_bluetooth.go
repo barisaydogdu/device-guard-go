@@ -2,6 +2,7 @@ package guard
 
 import (
 	"fmt"
+	"github/usb-guard-go/internal/util"
 	"log"
 	"os"
 	"os/exec"
@@ -45,6 +46,9 @@ func (b *BluetoothGuard) Block(eventMap map[string]string) error {
 	}
 
 	log.Println("blocked blueetooth")
+
+	util.SendNotification("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", macAddress))
+
 	return nil
 }
 
@@ -73,6 +77,9 @@ func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
 	}
 
 	log.Println("blocked blueetooth successfully")
+
+	util.SendNotification("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", macAddress))
+
 	return nil
 }
 

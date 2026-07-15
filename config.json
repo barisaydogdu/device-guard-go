@@ -9,5 +9,8 @@
   ],
   "allowed_net_interfaces": [
     "wlo1"
+  ],
+  "allowed_camera_ids": [
+    "232876"
   ]
 }

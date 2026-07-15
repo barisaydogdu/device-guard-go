@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,6 +13,7 @@ type AppConfig struct {
 	AllowedNetInterfaces []string `json:"allowed_net_interfaces"`
 	AllowedBluetoothMACs []string `json:"allowed_bluetooth_macs"`
 	AllowedUSBSerials    []string `json:"allowed_usb_serials"`
+	AllowedCameraIDsb    []string `json:"allowed_camera_ids"`
 }
 
 func LoadAppConfig() (*AppConfig, error) {
@@ -29,10 +31,10 @@ func LoadAppConfig() (*AppConfig, error) {
 	return &config, nil
 }
 
-func LoadAppConfigTxt() (*AppConfig, error) {
+func LoadAppConfigTxt(configPath string) (*AppConfig, error) {
 	config := &AppConfig{}
 
-	file, err := os.Open("../guard.conf")
+	file, err := os.Open(filepath.Join("..", configPath))
 	if err != nil {
 		return nil, err
 	}

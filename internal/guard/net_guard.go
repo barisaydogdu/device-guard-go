@@ -1,6 +1,8 @@
 package guard
 
 import (
+	"fmt"
+	"github/usb-guard-go/internal/util"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -28,6 +30,8 @@ func (b *NetGuard) Block(eventMap map[string]string) error {
 			return err
 		}
 		log.Println("Successfully blocked net:", iFace)
+
+		util.SendNotification("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", iFace))
 	}
 
 	return nil
