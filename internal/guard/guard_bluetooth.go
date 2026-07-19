@@ -85,7 +85,7 @@ func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
 
 	log.Println("blocked blueetooth successfully")
 
-	util.SendNotification("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", macAddress))
+	_ = util.AskPermission("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", macAddress))
 
 	return nil
 }

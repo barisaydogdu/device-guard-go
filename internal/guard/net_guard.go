@@ -31,7 +31,7 @@ func (b *NetGuard) Block(eventMap map[string]string) error {
 		}
 		log.Println("Successfully blocked net:", iFace)
 
-		util.SendNotification("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", iFace))
+		_ = util.AskPermission("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", iFace))
 	}
 
 	return nil

@@ -35,7 +35,7 @@ func ResolveConfigPath() string {
 	}
 }
 
-func SendNotification(title, message string) {
+func AskPermission(title, message string) bool {
 	username := os.Getenv("SUDO_USER")
 
 	if username == "" {
@@ -44,26 +44,39 @@ func SendNotification(title, message string) {
 
 	if username == "" {
 		log.Println("user cannot found, cannot send notification")
-		return
+		return false
 	}
 
 	userUid, err := user.Lookup(username)
 	if err != nil {
 		log.Println("Lookup error")
-		return
+		return false
 	}
+
+	// cmd := exec.Command("sudo", "-u", username,
+	// 	"env",
+	// 	fmt.Sprintf("DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%s/bus", userUid.Uid),
+	// 	fmt.Sprintf("XDG_RUNTIME_DIR=/run/user/%s", userUid.Uid),
+	// 	"DISPLAY=:0",
+	// 	"notify-send", title, message, "--urgency=critical",
+	// 	"--wait",
+	// 	"--action=allow=Allow for this device",
+	// )
 
 	cmd := exec.Command("sudo", "-u", username,
 		"env",
 		fmt.Sprintf("DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%s/bus", userUid.Uid),
 		fmt.Sprintf("XDG_RUNTIME_DIR=/run/user/%s", userUid.Uid),
 		"DISPLAY=:0",
-		"notify-send", title, message, "--urgency=normal",
-		"-t",
-		"3000",
+		"zenity", "--question",
+		"--title", title,
+		"--text", message,
+		"--width=350",
+		"--ok-label=✅ Allow",
+		"--cancel-label=❌ Ignore",
 	)
 
-	if err := cmd.Start(); err != nil {
-		log.Printf("error while send notification %v", err)
-	}
+	err = cmd.Run()
+
+	return err == nil
 }
