@@ -31,7 +31,16 @@ func (b *NetGuard) Block(eventMap map[string]string) error {
 		}
 		log.Println("Successfully blocked net:", iFace)
 
-		_ = util.AskPermission("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", iFace))
+		go func(iFace string) {
+			if util.AskPermission("Net Blocked", fmt.Sprintf("An unauthorized net was detected and blocked.\nDevice ID: %s", iFace)) {
+				log.Printf("User allowed net in id: %s", string(iFace))
+				b.Config.AddAllowedDevice("net", string(iFace))
+				err := exec.Command("ip", "link", "set", "dev", iFace, "up").Run()
+				if err != nil {
+					log.Println("Failed to allow net:", err)
+				}
+			}
+		}(iFace)
 	}
 
 	return nil
