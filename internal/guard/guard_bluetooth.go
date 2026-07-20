@@ -6,10 +6,13 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
 type BluetoothGuard struct {
-	Config *AppConfig
+	Config  *AppConfig
+	pending map[string]bool
+	mu      sync.Mutex
 }
 
 func (b *BluetoothGuard) Block(eventMap map[string]string) error {
@@ -62,10 +65,23 @@ func (b *BluetoothGuard) Allow(devPath string) error {
 }
 
 func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
-	fmt.Println("ccc2")
 	if macAddress == "" {
 		return fmt.Errorf("bluetooth mac address is empty")
 	}
+
+	b.mu.Lock()
+
+	if b.pending == nil {
+		b.pending = make(map[string]bool)
+	}
+
+	if b.pending[macAddress] {
+		b.mu.Unlock()
+		return nil
+	}
+
+	b.pending[macAddress] = true
+	b.mu.Unlock()
 
 	for i := 0; i < len(b.Config.AllowedBluetoothMACs); i++ {
 		if b.Config.AllowedBluetoothMACs[i] == strings.TrimSpace(string(macAddress)) {
@@ -85,7 +101,26 @@ func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
 
 	log.Println("blocked blueetooth successfully")
 
-	_ = util.AskPermission("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", macAddress))
+	go func(macAddress string) {
+		defer func() {
+			b.mu.Lock()
+			delete(b.pending, macAddress)
+			b.mu.Unlock()
+		}()
+
+		if util.AskPermission("Device Blocked", fmt.Sprintf("An unauthorized device was detected and blocked.\nDevice ID: %s", macAddress)) {
+			err := b.Config.AddAllowedDevice("blueetooth", macAddress)
+			if err != nil {
+				log.Printf("[bluetooth] Failed to add allowed blueetooth device: %v", err)
+				return
+			}
+			err = b.AllowSpecificDevice(macAddress)
+			if err != nil {
+				log.Printf("[blueetooth] Failed to allow device: %v", err)
+				return
+			}
+		}
+	}(macAddress)
 
 	return nil
 }
@@ -101,6 +136,16 @@ func (b *BluetoothGuard) AllowSpecificDevice(macAddress string) error {
 		return fmt.Errorf("cihazın engeli kaldırılamadı: %v, detay: %s", err, string(output))
 	}
 
-	log.Println("unblocked blueetooth successfully")
+	exec.Command("bluetoothctl", "trust", macAddress).Run()
+
+	cmdConnect := exec.Command("bluetoothctl", "connect", macAddress)
+	_, connErr := cmdConnect.CombinedOutput()
+	if connErr != nil {
+		log.Printf("[Bluetooth] Device added to the list, but failed to connect automatically.")
+	} else {
+		log.Printf("[Bluetooth] Automatic connection to the device was successful.")
+	}
+
+	log.Println("unblocked and trusted blueetooth successfully")
 	return nil
 }
