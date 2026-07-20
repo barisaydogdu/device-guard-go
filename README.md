@@ -28,7 +28,7 @@ Make sure Go is installed on your system.
 ## Tech Stack
 
 * **Language:** Go (Golang) v1.26.3
-* **Core APIs:** Linux Kernel Netlink (uevents), BlueZ D-Bus API
+* **Core APIs:** Linux Kernel Netlink (uevents), BlueZ D-Bus
 ## Contributing
 
 Contributions are always welcome! 
