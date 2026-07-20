@@ -66,7 +66,7 @@ func (b *BluetoothGuard) Allow(devPath string) error {
 
 func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
 	if macAddress == "" {
-		return fmt.Errorf("bluetooth mac address is empty")
+		return fmt.Errorf("[bluetooth] bluetooth mac address is empty")
 	}
 
 	b.mu.Lock()
@@ -99,7 +99,7 @@ func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
 		return fmt.Errorf("device cannot block: %v, detail: %s", err, string(output))
 	}
 
-	log.Println("blocked blueetooth successfully")
+	log.Println("[bluetooth] blocked bluetooth successfully")
 
 	go func(macAddress string) {
 		defer func() {
@@ -127,13 +127,13 @@ func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
 
 func (b *BluetoothGuard) AllowSpecificDevice(macAddress string) error {
 	if macAddress == "" {
-		return fmt.Errorf("bluetooth mac address is empty")
+		return fmt.Errorf("[bluetooth] bluetooth mac address is empty")
 	}
 
 	cmd := exec.Command("bluetoothctl", "unblock", macAddress)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("cihazın engeli kaldırılamadı: %v, detay: %s", err, string(output))
+		return fmt.Errorf("failed to unblock device: %s", output)
 	}
 
 	exec.Command("bluetoothctl", "trust", macAddress).Run()
@@ -141,9 +141,9 @@ func (b *BluetoothGuard) AllowSpecificDevice(macAddress string) error {
 	cmdConnect := exec.Command("bluetoothctl", "connect", macAddress)
 	_, connErr := cmdConnect.CombinedOutput()
 	if connErr != nil {
-		log.Printf("[Bluetooth] Device added to the list, but failed to connect automatically.")
+		log.Printf("[Bluetooth] revice added to the list, but failed to connect automatically.")
 	} else {
-		log.Printf("[Bluetooth] Automatic connection to the device was successful.")
+		log.Printf("[Bluetooth] automatic connection to the device was successful.")
 	}
 
 	log.Println("unblocked and trusted blueetooth successfully")

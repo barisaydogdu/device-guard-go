@@ -20,7 +20,7 @@ func HCIListener(ctx context.Context) (string, error) {
 
 	go func() {
 		<-ctx.Done()
-		log.Printf("Shutting down HCI Listener")
+		log.Printf("[hci_listener] shutting down HCI Listener")
 		unix.Close(fd)
 	}()
 
@@ -41,7 +41,7 @@ func HCIListener(ctx context.Context) (string, error) {
 
 	err = unix.SetsockoptString(fd, unix.SOL_HCI, 2, string(filter))
 	if err != nil {
-		log.Println("HCI Filtresi ayarlanamadı:", err)
+		log.Println("[hci_listener] failed to set HCI filter", err)
 		return "", err
 	}
 
@@ -51,18 +51,18 @@ func HCIListener(ctx context.Context) (string, error) {
 		Channel: unix.HCI_CHANNEL_RAW,
 	}
 	if err := unix.Bind(fd, addr); err != nil {
-		log.Println("failed to bind HCI channel:", err)
+		log.Println("[hci_listener] failed to bind HCI channel:", err)
 		return "", err
 	}
 
-	log.Println("blueetooth chip listening at the hardware level ")
+	log.Println("[hci_listener] blueetooth chip listening at the hardware level ")
 
 	buf := make([]byte, 1024)
 
 	for {
 		n, err := unix.Read(fd, buf)
 		if err != nil {
-			log.Println("failed to read HCI channel:", err)
+			log.Println("[hci_listener] failed to read HCI channel:", err)
 			continue
 		}
 
@@ -72,11 +72,11 @@ func HCIListener(ctx context.Context) (string, error) {
 			if packet[1] == 0x03 && len(packet) >= 12 {
 				mac := fmt.Sprintf("%02X:%02X:%02X:%02X:%02X:%02X",
 					packet[11], packet[10], packet[9], packet[8], packet[7], packet[6])
-				log.Println("target mac address", mac)
+				log.Println("[hci_listener] target mac address", mac)
 
 				err := guard.HandleMacEvent(mac)
 				if err != nil {
-					log.Println("failed to handle mac:", err)
+					log.Println("[hci_listener] failed to handle mac:", err)
 				}
 			}
 		}

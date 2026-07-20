@@ -50,14 +50,14 @@ func ListenUEvents(ctx context.Context) (map[string]string, error) {
 
 	go func() {
 		<-ctx.Done()
-		log.Println("Closing UEventSocket")
+		log.Println("[uevent_listener] closing UEventSocket")
 		syscall.Close(fd)
 	}()
 
 	for {
 		read, err := syscall.Read(fd, buffer)
 		if err != nil {
-			return nil, fmt.Errorf("socket read error: %v", err)
+			return nil, fmt.Errorf("[uevent_listener] socket read error: %v", err)
 		}
 
 		parts := bytes.Split(buffer[:read], []byte{0})
@@ -78,7 +78,7 @@ func ListenUEvents(ctx context.Context) (map[string]string, error) {
 
 		err = guard.HandleDeviceEvent(eventMap)
 		if err != nil {
-			log.Printf("Guard error: %v", err)
+			log.Printf("[uevent_listener] guard error: %v", err)
 			continue
 		}
 		//if eventMap["ACTION"] == "add" && eventMap["SUBSYSTEM"] == "usb" && eventMap["DEVTYPE"] == "usb_device" {

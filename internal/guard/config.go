@@ -20,6 +20,8 @@ type AppConfig struct {
 	AllowedCameraIDsb    []string `json:"allowed_camera_ids"`
 }
 
+const guardConfigFile = "../guard.conf"
+
 func LoadAppConfig() (*AppConfig, error) {
 	file, err := os.ReadFile("../config.json")
 	if err != nil {
@@ -94,7 +96,6 @@ func (c *AppConfig) AddAllowedDevice(deviceType string, identifier string) error
 		c.AllowedUSBSerials = append(c.AllowedUSBSerials, cleanedIdentifier)
 		logPrefix = "usb"
 		targetHeader = "# === USB Guard Permissions ==="
-		fmt.Println("qqq1")
 		break
 	case "blueetooth":
 		c.AllowedBluetoothMACs = append(c.AllowedBluetoothMACs, cleanedIdentifier)
@@ -107,12 +108,12 @@ func (c *AppConfig) AddAllowedDevice(deviceType string, identifier string) error
 		targetHeader = "# === Network Guard Permissions ==="
 		break
 	default:
-		return fmt.Errorf("unknown device type %s", deviceType)
+		return fmt.Errorf("[config] unknown device type %s", deviceType)
 	}
 
-	content, err := os.ReadFile("../guard.conf")
+	content, err := os.ReadFile(guardConfigFile)
 	if err != nil {
-		return fmt.Errorf("config file cannot read")
+		return fmt.Errorf("[config] config file cannot read")
 	}
 
 	lines := strings.Split(string(content), "\n")
@@ -126,7 +127,7 @@ func (c *AppConfig) AddAllowedDevice(deviceType string, identifier string) error
 	}
 
 	if tIndex == -1 {
-		return fmt.Errorf("kritik hata: '%s' basligi dosyada bulunamadi", targetHeader)
+		return fmt.Errorf("[config] title '%s' not found in file", targetHeader)
 	}
 
 	insertIndex := tIndex + 1
@@ -135,9 +136,9 @@ func (c *AppConfig) AddAllowedDevice(deviceType string, identifier string) error
 	lines = append(lines[:insertIndex], append([]string{lineToWrite}, lines[insertIndex:]...)...)
 
 	finalContent := strings.Join(lines, "\n")
-	err = os.WriteFile("../guard.conf", []byte(finalContent), 0644)
+	err = os.WriteFile(guardConfigFile, []byte(finalContent), 0644)
 	if err != nil {
-		return fmt.Errorf("config dosyasi guncellenemedi: %w", err)
+		return fmt.Errorf("[config] config Failed to update configuration file:  %w", err)
 	}
 
 	return nil

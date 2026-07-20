@@ -18,7 +18,7 @@ func main() {
 
 	config, err := guard.LoadAppConfigTxt(configPath)
 	if err != nil {
-		log.Println("config bulunamadi", err)
+		log.Println("config cannot find", err)
 		return
 	}
 
