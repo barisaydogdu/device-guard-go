@@ -1,4 +1,4 @@
-module github/usb-guard-go
+module github.com/barisaydogdu/device-guard-go
 
 go 1.26
 

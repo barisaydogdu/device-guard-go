@@ -3,8 +3,9 @@ package listener
 import (
 	"context"
 	"fmt"
-	"github/usb-guard-go/internal/guard"
 	"log"
+
+	"github.com/barisaydogdu/device-guard-go/internal/guard"
 
 	"golang.org/x/sys/unix"
 )

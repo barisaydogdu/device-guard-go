@@ -2,10 +2,11 @@ package guard
 
 import (
 	"fmt"
-	"github/usb-guard-go/internal/util"
 	"log"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/barisaydogdu/device-guard-go/internal/util"
 )
 
 type NetGuard struct {

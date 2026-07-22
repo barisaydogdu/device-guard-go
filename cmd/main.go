@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"github/usb-guard-go/internal/guard"
-	listener "github/usb-guard-go/internal/listener"
-	"github/usb-guard-go/internal/util"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/barisaydogdu/device-guard-go/internal/guard"
+	listener "github.com/barisaydogdu/device-guard-go/internal/listener"
+	"github.com/barisaydogdu/device-guard-go/internal/util"
 )
 
 func main() {

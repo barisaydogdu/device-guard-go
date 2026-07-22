@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github/usb-guard-go/internal/guard"
 	"log"
 	"os"
 	"strings"
 	"syscall"
+
+	"github.com/barisaydogdu/device-guard-go/internal/guard"
 )
 
 func isUserRoot() bool {
