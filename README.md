@@ -34,3 +34,6 @@ Make sure Go is installed on your system.
 Contributions are always welcome! 
 
 Feel free to open an **Issue** to report bugs or suggest features, or submit a **Pull Request** directly with your improvements.
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/barisaydogdu/device-guard-go@v1.0.1#section-readme.svg)](https://pkg.go.dev/github.com/barisaydogdu/device-guard-go@v1.0.1#section-readme)
+
