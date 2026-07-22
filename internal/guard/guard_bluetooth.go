@@ -91,7 +91,10 @@ func (b *BluetoothGuard) BlockSpecificDevice(macAddress string) error {
 		}
 	}
 
-	exec.Command("bluetoothctl", "disconnect", macAddress).Run()
+	err := exec.Command("bluetoothctl", "disconnect", macAddress).Run()
+	if err != nil {
+		return err
+	}
 
 	cmd := exec.Command("bluetoothctl", "block", macAddress)
 
@@ -137,7 +140,10 @@ func (b *BluetoothGuard) AllowSpecificDevice(macAddress string) error {
 		return fmt.Errorf("failed to unblock device: %s", output)
 	}
 
-	exec.Command("bluetoothctl", "trust", macAddress).Run()
+	err = exec.Command("bluetoothctl", "trust", macAddress).Run()
+	if err != nil {
+		return err
+	}
 
 	cmdConnect := exec.Command("bluetoothctl", "connect", macAddress)
 	_, connErr := cmdConnect.CombinedOutput()

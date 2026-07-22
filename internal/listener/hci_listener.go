@@ -17,12 +17,20 @@ func HCIListener(ctx context.Context) (string, error) {
 		return "s", err
 	}
 
-	defer unix.Close(fd)
+	defer func(fd int) {
+		err := unix.Close(fd)
+		if err != nil {
+			return
+		}
+	}(fd)
 
 	go func() {
 		<-ctx.Done()
 		log.Printf("[hci_listener] shutting down HCI Listener")
-		unix.Close(fd)
+		err := unix.Close(fd)
+		if err != nil {
+			return
+		}
 	}()
 
 	//filter struct in kernel

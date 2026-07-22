@@ -5,20 +5,19 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 	"syscall"
 
 	"github.com/barisaydogdu/device-guard-go/internal/guard"
 )
 
-func isUserRoot() bool {
-	if os.Getuid() != 0 {
-		log.Println("isUserRoot is false")
-		return false
-	}
-	return true
-}
+//func isUserRoot() bool {
+//	if os.Getuid() != 0 {
+//		log.Println("isUserRoot is false")
+//		return false
+//	}
+//	return true
+//}
 
 func openUEventSocket() (int, error) {
 	fd, err := syscall.Socket(syscall.AF_NETLINK, syscall.SOCK_RAW, syscall.NETLINK_KOBJECT_UEVENT)
@@ -45,14 +44,22 @@ func ListenUEvents(ctx context.Context) (map[string]string, error) {
 		return nil, err
 	}
 
-	defer syscall.Close(fd)
+	defer func(fd int) {
+		err := syscall.Close(fd)
+		if err != nil {
+			return
+		}
+	}(fd)
 
 	buffer := make([]byte, 4096)
 
 	go func() {
 		<-ctx.Done()
 		log.Println("[uevent_listener] closing UEventSocket")
-		syscall.Close(fd)
+		err := syscall.Close(fd)
+		if err != nil {
+			return
+		}
 	}()
 
 	for {

@@ -45,7 +45,12 @@ func LoadAppConfigTxt(configPath string) (*AppConfig, error) {
 		return nil, err
 	}
 
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			return
+		}
+	}(file)
 
 	scanner := bufio.NewScanner(file)
 
@@ -69,14 +74,12 @@ func LoadAppConfigTxt(configPath string) (*AppConfig, error) {
 		switch values[0] {
 		case "net":
 			config.AllowedNetInterfaces = append(config.AllowedNetInterfaces, values[1])
-			break
 		case "bt":
 			config.AllowedBluetoothMACs = append(config.AllowedBluetoothMACs, values[1])
-			break
 		case "usb":
 			config.AllowedUSBSerials = append(config.AllowedUSBSerials, values[1])
-			break
 		}
+		break
 	}
 	return config, scanner.Err()
 }
@@ -96,17 +99,14 @@ func (c *AppConfig) AddAllowedDevice(deviceType string, identifier string) error
 		c.AllowedUSBSerials = append(c.AllowedUSBSerials, cleanedIdentifier)
 		logPrefix = "usb"
 		targetHeader = "# === USB Guard Permissions ==="
-		break
 	case "blueetooth":
 		c.AllowedBluetoothMACs = append(c.AllowedBluetoothMACs, cleanedIdentifier)
 		logPrefix = "bt"
 		targetHeader = "# === Bluetooth Guard Permissions ==="
-		break
 	case "net":
 		c.AllowedNetInterfaces = append(c.AllowedNetInterfaces, cleanedIdentifier)
 		logPrefix = "net"
 		targetHeader = "# === Network Guard Permissions ==="
-		break
 	default:
 		return fmt.Errorf("[config] unknown device type %s", deviceType)
 	}
@@ -118,7 +118,7 @@ func (c *AppConfig) AddAllowedDevice(deviceType string, identifier string) error
 
 	lines := strings.Split(string(content), "\n")
 
-	var tIndex int = -1
+	tIndex := -1
 	for i, line := range lines {
 		if strings.TrimSpace(line) == targetHeader {
 			tIndex = i
